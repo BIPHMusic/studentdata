@@ -503,21 +503,12 @@
                     }
                 },
                 onClick: (event, elements) => {
-                    if (elements.length > 0) {
-                        const { datasetIndex } = elements[0];
-                        if (datasetIndex === 0) {
-                            // Do nothing if clicking on the average line
-                            return;
-                        }
-                        if (lockedDatasetIndex !== null) {
-                            // If in lock mode, clicking anywhere should revert to default mode
-                            disableLockMode();
-                        } else {
-                            toggleLockMode(datasetIndex);
-                        }
-                    } else if (lockedDatasetIndex !== null) {
-                        // If in lock mode and clicking on empty space, revert to default mode
+                    if (lockedDatasetIndex !== null) {
+                        // If in lock mode, clicking anywhere should revert to default mode
                         disableLockMode();
+                    } else if (elements.length > 0) {
+                        const { datasetIndex } = elements[0];
+                        toggleLockMode(datasetIndex);
                     }
                     chart.update();
                 },
@@ -556,13 +547,14 @@
                 dataset.borderWidth = 1;
                 dataset.borderDash = [5, 5];
                 dataset.pointRadius = 0;
-                dataset.pointHoverRadius = 0; // Disable hover effect
+                dataset.pointHoverRadius = 0;
+                dataset.backgroundColor = 'transparent'; // Remove fill for class average
             } else if (i === index) {
                 // Selected student
                 dataset.borderColor = colors[i - 1];
                 dataset.borderWidth = 3;
                 dataset.pointRadius = 5;
-                dataset.pointHoverRadius = 8; // Enable hover effect for locked student
+                dataset.pointHoverRadius = 8;
                 chart.getDatasetMeta(i).hidden = false;
             } else {
                 // Other students
@@ -573,6 +565,25 @@
                 chart.getDatasetMeta(i).hidden = true;
             }
         });
+
+        // Update legend generation
+        chart.options.plugins.legend.labels.generateLabels = function(chart) {
+            const datasets = chart.data.datasets;
+            return datasets.map((dataset, i) => ({
+                text: dataset.label === '' ? 'Class Avg.' : dataset.label,
+                fillStyle: i === 0 && lockedDatasetIndex !== null ? 'transparent' : dataset.borderColor,
+                strokeStyle: dataset.borderColor,
+                lineWidth: dataset.borderWidth,
+                hidden: !chart.isDatasetVisible(i),
+                lineCap: dataset.borderCapStyle,
+                lineDash: dataset.borderDash,
+                lineDashOffset: dataset.borderDashOffset,
+                lineJoin: dataset.borderJoinStyle,
+                pointStyle: dataset.pointStyle,
+                rotation: dataset.rotation,
+                datasetIndex: i
+            }));
+        };
 
         // Ensure custom tooltip settings are maintained
         chart.options.plugins.tooltip = {
@@ -592,8 +603,9 @@
                 // Reset class average line
                 dataset.borderWidth = 3;
                 dataset.borderDash = [];
-                dataset.pointRadius = 4;
+                dataset.pointRadius = 5;
                 dataset.pointHoverRadius = 8;
+                dataset.backgroundColor = 'rgba(0, 0, 255, 0.1)'; // Restore fill for class average
             } else {
                 // Reset all student lines
                 dataset.borderColor = 'rgba(200, 200, 200, 0.5)';
@@ -602,6 +614,25 @@
                 chart.getDatasetMeta(index).hidden = false;
             }
         });
+
+        // Reset legend generation
+        chart.options.plugins.legend.labels.generateLabels = function(chart) {
+            const datasets = chart.data.datasets;
+            return datasets.map((dataset, i) => ({
+                text: dataset.label === '' ? 'Class Avg.' : dataset.label,
+                fillStyle: dataset.borderColor,
+                strokeStyle: dataset.borderColor,
+                lineWidth: dataset.borderWidth,
+                hidden: !chart.isDatasetVisible(i),
+                lineCap: dataset.borderCapStyle,
+                lineDash: dataset.borderDash,
+                lineDashOffset: dataset.borderDashOffset,
+                lineJoin: dataset.borderJoinStyle,
+                pointStyle: dataset.pointStyle,
+                rotation: dataset.rotation,
+                datasetIndex: i
+            }));
+        };
 
         chart.update();
     }
