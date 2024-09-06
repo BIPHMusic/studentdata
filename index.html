@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AP Units</title>
+    <title>Student Data</title>
     <link rel="icon" href="/icons/BGicon.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -238,11 +238,24 @@
         }
         #chart-container {
             position: relative;
-            height: 400px;
+            height: 430px; /* Increased height to accommodate title */
             background-color: white;
             border-radius: 10px;
             padding: 20px;
             margin-top: 20px;
+        }
+
+        #chart-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        #chart-wrapper {
+            position: relative;
+            height: calc(100% - 30px); /* Subtract title height */
         }
 
         .default-tooltip, .lock-tooltip {
@@ -310,7 +323,10 @@
             <button class="tab" onclick="switchTab('sightReading')">Sight Reading Exercises</button>
         </div>
         <div id="chart-container">
-            <canvas id="progressChart"></canvas>
+            <div id="chart-title">Class Average</div>
+            <div id="chart-wrapper">
+                <canvas id="progressChart"></canvas>
+            </div>
         </div>
 
 
@@ -332,7 +348,10 @@
     <script>
     // Add Javascript here
 
-
+    // Add these variables at the top of your script
+    let lastTooltipX = 0;
+    let lastTooltipY = 0;
+    let animationFrameId = null;
 
     // Hamburger menu functionality
     const menuToggle = document.querySelector('.menu-toggle');
@@ -403,8 +422,9 @@
                         borderColor: 'blue',
                         backgroundColor: 'rgba(0, 0, 255, 0.1)',
                         borderWidth: 3,
-                        pointRadius: 2,
-                        pointHoverRadius: 5,
+                        pointRadius: 4,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: 'blue', // Make points solid
                         fill: false,
                         tension: 0.1
                     },
@@ -415,7 +435,7 @@
                         backgroundColor: colors[index],
                         borderWidth: 1,
                         pointRadius: 0,
-                        pointHoverRadius: 5,
+                        pointHoverRadius: 8,
                         tension: 0.1,
                         hidden: false
                     }))
@@ -437,11 +457,14 @@
                 plugins: {
                     legend: {
                         position: 'right',
+                        align: 'start', // Align legend to the top
                         onHover: (event, legendItem, legend) => {
                             const index = legendItem.datasetIndex;
                             if (index > 0 && lockedDatasetIndex === null) {
                                 highlightDataset(index);
                             }
+                            // Hide tooltip when hovering over legend
+                            hideTooltip();
                         },
                         onLeave: (event, legendItem, legend) => {
                             if (lockedDatasetIndex === null) {
@@ -458,7 +481,7 @@
                             generateLabels: function(chart) {
                                 const datasets = chart.data.datasets;
                                 return datasets.map((dataset, i) => ({
-                                    text: dataset.label === 'Class Average' ? 'Class Avg.' : dataset.label,
+                                    text: dataset.label === '' ? 'Class Avg.' : dataset.label,
                                     fillStyle: dataset.borderColor,
                                     hidden: !chart.isDatasetVisible(i),
                                     lineCap: dataset.borderCapStyle,
@@ -475,17 +498,26 @@
                         }
                     },
                     tooltip: {
-                        enabled: false, // Disable the default tooltip
+                        enabled: false,
                         external: customTooltip
                     }
                 },
                 onClick: (event, elements) => {
-                    if (lockedDatasetIndex !== null) {
-                        // If in lock mode, clicking anywhere should revert to default mode
-                        disableLockMode();
-                    } else if (elements.length > 0) {
+                    if (elements.length > 0) {
                         const { datasetIndex } = elements[0];
-                        toggleLockMode(datasetIndex);
+                        if (datasetIndex === 0) {
+                            // Do nothing if clicking on the average line
+                            return;
+                        }
+                        if (lockedDatasetIndex !== null) {
+                            // If in lock mode, clicking anywhere should revert to default mode
+                            disableLockMode();
+                        } else {
+                            toggleLockMode(datasetIndex);
+                        }
+                    } else if (lockedDatasetIndex !== null) {
+                        // If in lock mode and clicking on empty space, revert to default mode
+                        disableLockMode();
                     }
                     chart.update();
                 },
@@ -510,8 +542,15 @@
         }
     }
 
+    const fullNames = [
+        'Ben Chen', 'Howard Ding', 'Terry He', 'Alice Li', 'Vincent Mu', 'Tiger Pan', 
+        'Chris Peng', 'Lucy Sheng', 'Diego Su', 'Hailey Wang', 'Eileen Xu', 'Angelina Yan', 
+        'Serena Zeng', 'Catherine Zhang', 'Andrew Zhao', 'Jennifer Zhou'
+    ];
+
     function enableLockMode(index) {
         lockedDatasetIndex = index;
+        document.getElementById('chart-title').textContent = fullNames[index - 1];
         chart.data.datasets.forEach((dataset, i) => {
             if (i === 0) {
                 dataset.borderWidth = 1;
@@ -523,7 +562,7 @@
                 dataset.borderColor = colors[i - 1];
                 dataset.borderWidth = 3;
                 dataset.pointRadius = 5;
-                dataset.pointHoverRadius = 7; // Enable hover effect for locked student
+                dataset.pointHoverRadius = 8; // Enable hover effect for locked student
                 chart.getDatasetMeta(i).hidden = false;
             } else {
                 // Other students
@@ -547,12 +586,14 @@
 
     function disableLockMode() {
         lockedDatasetIndex = null;
+        document.getElementById('chart-title').textContent = 'Class Average';
         chart.data.datasets.forEach((dataset, index) => {
             if (index === 0) {
                 // Reset class average line
                 dataset.borderWidth = 3;
                 dataset.borderDash = [];
-                dataset.pointRadius = 2;
+                dataset.pointRadius = 4;
+                dataset.pointHoverRadius = 8;
             } else {
                 // Reset all student lines
                 dataset.borderColor = 'rgba(200, 200, 200, 0.5)';
@@ -628,45 +669,81 @@
         chart.update();
     }
 
-    // Add this new function for custom tooltip
+    // Update the customTooltip function
     function customTooltip(context) {
         const defaultTooltip = document.getElementById('default-tooltip');
         const lockTooltip = document.getElementById('lock-tooltip');
         const {chart, tooltip: tooltipModel} = context;
 
         if (tooltipModel.opacity === 0) {
-            defaultTooltip.style.opacity = '0';
-            lockTooltip.style.opacity = '0';
+            hideTooltip();
             return;
         }
 
-        //move floating label down
-        const dataPoint = tooltipModel.dataPoints[0];
-        const x = tooltipModel.caretX;
-        const y = tooltipModel.caretY + 250;
+        const chartRect = chart.canvas.getBoundingClientRect();
+        const activeTooltip = lockedDatasetIndex === null ? defaultTooltip : lockTooltip;
+        const inactiveTooltip = lockedDatasetIndex === null ? lockTooltip : defaultTooltip;
 
+        // Update tooltip content
         if (lockedDatasetIndex === null) {
-            // Default mode: show class average
-            const classAvgValue = chart.data.datasets[0].data[dataPoint.dataIndex].toFixed(1);
-            defaultTooltip.innerHTML = `Class Average: ${classAvgValue}%`;
-            defaultTooltip.style.opacity = '1';
-            defaultTooltip.style.left = `${x}px`;
-            defaultTooltip.style.top = `${y}px`;
-            lockTooltip.style.opacity = '0';
+            const classAvgValue = chart.data.datasets[0].data[tooltipModel.dataPoints[0].dataIndex].toFixed(1);
+            defaultTooltip.innerHTML = `${classAvgValue}%`;
         } else {
-            // Lock mode: show student's score
-            const label = chart.data.datasets[lockedDatasetIndex].label;
-            const value = chart.data.datasets[lockedDatasetIndex].data[dataPoint.dataIndex].toFixed(1);
+            const value = chart.data.datasets[lockedDatasetIndex].data[tooltipModel.dataPoints[0].dataIndex].toFixed(1);
             lockTooltip.innerHTML = `${value}%`;
-            lockTooltip.style.opacity = '1';
-            lockTooltip.style.left = `${x}px`;
-            lockTooltip.style.top = `${y}px`;
-            defaultTooltip.style.opacity = '0';
         }
+
+        // Calculate tooltip position based on screen size
+        const screenWidth = window.innerWidth;
+        const xOffset = screenWidth > 1200 ? '37%' : '200px';
+        const yOffset = screenWidth > 1200 ? '-46%' : '-200px';
+
+        // Smooth tooltip movement
+        const targetX = tooltipModel.caretX + chartRect.left;
+        const targetY = tooltipModel.caretY + chartRect.top;
+
+        function animateTooltip() {
+            lastTooltipX += (targetX - lastTooltipX) * 0.3;
+            lastTooltipY += (targetY - lastTooltipY) * 0.3;
+
+            activeTooltip.style.left = `calc(${lastTooltipX}px + ${xOffset})`;
+            activeTooltip.style.top = `calc(${lastTooltipY}px + ${yOffset})`;
+
+            if (Math.abs(targetX - lastTooltipX) > 0.1 || Math.abs(targetY - lastTooltipY) > 0.1) {
+                animationFrameId = requestAnimationFrame(animateTooltip);
+            }
+        }
+
+        if (!animationFrameId) {
+            animationFrameId = requestAnimationFrame(animateTooltip);
+        }
+
+        // Show active tooltip and hide inactive one
+        activeTooltip.style.opacity = '1';
+        inactiveTooltip.style.opacity = '0';
     }
+
+    // Update the mousemove event listener
+    document.getElementById('progressChart').addEventListener('mousemove', (event) => {
+        const activeTooltip = lockedDatasetIndex === null ? document.getElementById('default-tooltip') : document.getElementById('lock-tooltip');
+        activeTooltip.style.left = `${event.clientX}px`;
+        activeTooltip.style.top = `calc(${event.clientY}px + 1vh)`;
+    });
 
     // Call createChart after the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', createChart);
+
+    // Add this new function to hide the tooltip
+    function hideTooltip() {
+        const defaultTooltip = document.getElementById('default-tooltip');
+        const lockTooltip = document.getElementById('lock-tooltip');
+        defaultTooltip.style.opacity = '0';
+        lockTooltip.style.opacity = '0';
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+    }
 </script>
 
 <div id="default-tooltip" class="default-tooltip"></div>
