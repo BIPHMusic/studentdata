@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP Units</title>
+    <link rel="icon" href="/icons/BGicon.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @font-face {
+            font-family: 'Zapfino';
+            src: url('fonts/Zapfino.ttf') format('truetype');
+        }
+        
+        body {
+            background-color: rgb(45, 70, 119);
+            font-family: 'Andika', sans-serif;
+            /* font-family: 'Helvetica Neue', Arial, sans-serif; */
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgb(45, 70, 119), rgb(9, 32, 79));
+            opacity: 0.8;
+            z-index: -2;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 70%, #303f6c 0%, transparent 50%),
+                        radial-gradient(circle at 70% 30%, #236693 0%, transparent 50%);
+            mix-blend-mode: overlay;
+            opacity: 0.5;
+            z-index: -1;
+            animation: pulse 1.5s infinite alternate;
+        }
+        .overlay2 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 70%, #ffffff 0%, transparent 50%),
+                        radial-gradient(circle at 30% 30%, #b8b8b8 0%, transparent 50%);
+            mix-blend-mode: overlay;
+            opacity: 0.5;
+            z-index: -1;
+            animation: pulse 2s infinite alternate;
+        }
+        @keyframes pulse {
+            0% {
+                opacity: 0.3;
+                transform: scale(1); 
+            }
+            100% {
+                opacity: 0.7;
+                transform: scale(1.1);
+            }
+        }
+
+        .logocontainer {
+    position: relative;
+    min-height: 10vh;
+    padding-bottom: 50px;
+}
+
+.logo {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 25vh;
+    height: auto;
+    z-index: 10; 
+}
+
+.Subtitle {
+            font-family: 'Zapfino', sans-serif;
+            color: white;
+            margin-top: -0.7em;
+            font-size: 40px;
+        }
+
+.hamburger-menu {
+            position: absolute;
+            margin-left: 7px;
+            top: 20px;
+            left: 13px;
+            z-index: 1000;
+        }
+
+        .menu-toggle {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 30px;
+            height: 25px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 20;
+            z-index: 1001;
+        }
+
+        .menu-toggle span {
+            width: 30px;
+            height: 3px;
+            background: white;
+            border-radius: 10px;
+            transition: all 0.1s ease-in-out;
+        }
+
+        .menu-toggle.open span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.open span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.open span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        .menu-items {
+            position: absolute;
+            top: 25px;
+            left: -250px;
+            background: linear-gradient(135deg, rgba(48, 67, 104, 0.8), rgba(20, 31, 53, 0.8));
+            width: 250px;
+            height: 90vh;
+            padding-top: 20px;
+            transition: all 0.1s ease-in-out;
+            opacity: 0;
+        }
+
+        .menu-items.show {
+            left: 0;
+            opacity: 1;
+        }
+
+        .menu-items a {
+            display: block;
+            padding: 15px 20px;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.1s;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+        }
+
+        .menu-items.show a {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .menu-items a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-items a:nth-child(1) { transition-delay: 0.1s; }
+.menu-items a:nth-child(2) { transition-delay: 0.2s; }
+.menu-items a:nth-child(3) { transition-delay: 0.3s; }
+.menu-items a:nth-child(4) { transition-delay: 0.4s; }
+.menu-items a:nth-child(5) { transition-delay: 0.5s; }
+.menu-items a:nth-child(6) { transition-delay: 0.6s; }
+.menu-items a:nth-child(7) { transition-delay: 0.7s; }
+.menu-items a:nth-child(8) { transition-delay: 0.8s; }
+.menu-items a:nth-child(9) { transition-delay: 0.9s; }
+.menu-items a:nth-child(10) { transition-delay: 1.0s; }
+
+        .menu-title {
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .menu-footer {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+        }
+       
+/* Add CSS here */
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background-color: #ddd;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+        .tab:first-child {
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+        }
+        .tab:last-child {
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+        .tab.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #chart-container {
+            position: relative;
+            height: 400px;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .default-tooltip, .lock-tooltip {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 2px solid #4CAF50;
+            color: #333;
+            padding: 3px;
+            border-radius: 5px;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+            opacity: 0;
+            transform: translateY(10px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+            z-index: 1000;
+        }
+
+        .lock-tooltip {
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 2px solid #4CAF50;
+        }
+
+
+
+
+
+
+        
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="overlay"></div>
+    <div class="overlay2"></div>
+
+    <div class="hamburger-menu">
+        <button class="menu-toggle" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="menu-items" id="menu-items">
+            <div class="menu-title">BIPH Music</div>
+            <a href="https://biphmusic.github.io/">Home</a>
+            <a href="https://biphmusic.github.io/APUnits/">AP Units</a>
+            <a href="https://biphmusic.github.io/FlashCards/">Flash Cards</a>
+            <a href="https://biphmusic.github.io/MusicTheoryDice/">Dice Simulator</a>
+            <a href="https://biphmusic.github.io/WebPiano/">Web Piano</a>
+            <a href="https://biphmusic.github.io/WordWall/">Word Wall</a>
+            <a href="mailto:garrison.tubbs-biph@basischina.com">Contact</a>
+            
+            <div class="menu-footer">© Garrison Tubbs 2024</div>
+        </div>
+    </div>
+
+    <h1 class="Title">BIPH Music</h1>
+    <h1 class="Subtitle">Student Progress</h1>
+
+    <div class="container">
+
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('vocabulary')">Vocabulary Tests</button>
+            <button class="tab" onclick="switchTab('sightReading')">Sight Reading Exercises</button>
+        </div>
+        <div id="chart-container">
+            <canvas id="progressChart"></canvas>
+        </div>
+
+
+
+
+
+
+
+
+
+
+       
+    </div>
+
+    <div class="logocontainer">        
+        <img src="BASIS logo/Full Logo White on Transparent.png" alt="BASIS Logo" class="logo">
+    </div>
+    
+    <script>
+    // Add Javascript here
+
+
+
+    // Hamburger menu functionality
+    const menuToggle = document.querySelector('.menu-toggle');
+    const menuItems = document.querySelector('.menu-items');
+    
+    menuToggle.addEventListener('click', () => {
+        menuToggle.classList.toggle('open');
+        menuItems.classList.toggle('show');
+    });
+    
+    // Close the menu when clicking outside
+    document.addEventListener('click', (event) => {
+        // Check if the click was outside the menu and the toggle button
+        if (!menuToggle.contains(event.target) && !menuItems.contains(event.target)) {
+            menuToggle.classList.remove('open');
+            menuItems.classList.remove('show');
+        }
+    });
+
+    // Add this new JavaScript for the chart functionality
+    const numStudents = 18;
+    const numWeeks = 10;
+    const studentNames = ['Ben', 'Howard', 'Terry', 'Alice', 'Vincent', 'Tiger', 'Chris', 'Lucy', 'Diego', 'Hailey', 'Eileen', 'Angelina', 'Serena', 'Catherine', 'Andrew', 'Jennifer'];
+    const colors = [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+    ];
+
+    function generateData() {
+        return Array.from({length: numWeeks}, () => (Math.floor(Math.random() * 41) + 60) * 0.01);
+    }
+
+    const vocabularyData = studentNames.map(name => ({
+        name: name,
+        data: generateData()
+    }));
+
+    const sightReadingData = studentNames.map(name => ({
+        name: name,
+        data: generateData()
+    }));
+
+    let chart;
+    let activeDataset = vocabularyData;
+
+    function calculateClassAverage(data) {
+        const averages = [];
+        for (let i = 0; i < numWeeks; i++) {
+            const sum = data.reduce((acc, student) => acc + student.data[i], 0);
+            averages.push((sum / numStudents) * 100); // Convert back to percentage
+        }
+        return averages;
+    }
+
+    function createChart() {
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        const classAverage = calculateClassAverage(activeDataset);
+
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: numWeeks}, (_, i) => `Week ${i + 1}`),
+                datasets: [
+                    {
+                        label: 'Class Avg.',
+                        data: classAverage,
+                        borderColor: 'blue',
+                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 2,
+                        pointHoverRadius: 5,
+                        fill: false,
+                        tension: 0.1
+                    },
+                    ...activeDataset.map((student, index) => ({
+                        label: student.name,
+                        data: student.data.map(value => value * 100),
+                        borderColor: 'rgba(200, 200, 200, 0.5)',
+                        backgroundColor: colors[index],
+                        borderWidth: 1,
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
+                        tension: 0.1,
+                        hidden: false
+                    }))
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        onHover: (event, legendItem, legend) => {
+                            const index = legendItem.datasetIndex;
+                            if (index > 0 && lockedDatasetIndex === null) {
+                                highlightDataset(index);
+                            }
+                        },
+                        onLeave: (event, legendItem, legend) => {
+                            if (lockedDatasetIndex === null) {
+                                resetHighlight();
+                            }
+                        },
+                        onClick: (e, legendItem, legend) => {
+                            const index = legendItem.datasetIndex;
+                            if (index === 0) return; // Don't toggle class average
+                            toggleLockMode(index);
+                            chart.update();
+                        },
+                        labels: {
+                            generateLabels: function(chart) {
+                                const datasets = chart.data.datasets;
+                                return datasets.map((dataset, i) => ({
+                                    text: dataset.label === 'Class Average' ? 'Class Avg.' : dataset.label,
+                                    fillStyle: dataset.borderColor,
+                                    hidden: !chart.isDatasetVisible(i),
+                                    lineCap: dataset.borderCapStyle,
+                                    lineDash: dataset.borderDash,
+                                    lineDashOffset: dataset.borderDashOffset,
+                                    lineJoin: dataset.borderJoinStyle,
+                                    lineWidth: dataset.borderWidth,
+                                    strokeStyle: dataset.borderColor,
+                                    pointStyle: dataset.pointStyle,
+                                    rotation: dataset.rotation,
+                                    datasetIndex: i
+                                }));
+                            }
+                        }
+                    },
+                    tooltip: {
+                        enabled: false, // Disable the default tooltip
+                        external: customTooltip
+                    }
+                },
+                onClick: (event, elements) => {
+                    if (lockedDatasetIndex !== null) {
+                        // If in lock mode, clicking anywhere should revert to default mode
+                        disableLockMode();
+                    } else if (elements.length > 0) {
+                        const { datasetIndex } = elements[0];
+                        toggleLockMode(datasetIndex);
+                    }
+                    chart.update();
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                onHover: null
+            }
+        });
+
+        setDefaultState(); // Set the default state when the chart is created
+    }
+
+    let lockedDatasetIndex = null;
+
+    function toggleLockMode(index) {
+        if (lockedDatasetIndex === index) {
+            disableLockMode();
+        } else {
+            enableLockMode(index);
+        }
+    }
+
+    function enableLockMode(index) {
+        lockedDatasetIndex = index;
+        chart.data.datasets.forEach((dataset, i) => {
+            if (i === 0) {
+                dataset.borderWidth = 1;
+                dataset.borderDash = [5, 5];
+                dataset.pointRadius = 0;
+                dataset.pointHoverRadius = 0; // Disable hover effect
+            } else if (i === index) {
+                // Selected student
+                dataset.borderColor = colors[i - 1];
+                dataset.borderWidth = 3;
+                dataset.pointRadius = 5;
+                dataset.pointHoverRadius = 7; // Enable hover effect for locked student
+                chart.getDatasetMeta(i).hidden = false;
+            } else {
+                // Other students
+                dataset.borderColor = 'rgba(200, 200, 200, 0.3)';
+                dataset.borderWidth = 1;
+                dataset.pointRadius = 0;
+                dataset.pointHoverRadius = 0;
+                chart.getDatasetMeta(i).hidden = true;
+            }
+        });
+
+        // Ensure custom tooltip settings are maintained
+        chart.options.plugins.tooltip = {
+            enabled: false,
+            external: customTooltip
+        };
+
+        chart.options.onHover = null; // Disable default hover behavior
+        chart.update();
+    }
+
+    function disableLockMode() {
+        lockedDatasetIndex = null;
+        chart.data.datasets.forEach((dataset, index) => {
+            if (index === 0) {
+                // Reset class average line
+                dataset.borderWidth = 3;
+                dataset.borderDash = [];
+                dataset.pointRadius = 2;
+            } else {
+                // Reset all student lines
+                dataset.borderColor = 'rgba(200, 200, 200, 0.5)';
+                dataset.borderWidth = 1;
+                dataset.pointRadius = 0;
+                chart.getDatasetMeta(index).hidden = false;
+            }
+        });
+
+        chart.update();
+    }
+
+    function highlightDataset(index) {
+        if (lockedDatasetIndex !== null) return; // Don't highlight if in lock mode
+        chart.data.datasets.forEach((dataset, i) => {
+            if (i === 0) {
+                // Modify class average line
+                dataset.borderWidth = 1;
+                dataset.borderDash = [5, 5];
+                dataset.pointRadius = 0;
+            } else if (i === index) {
+                dataset.borderColor = colors[i - 1];
+                dataset.borderWidth = 3;
+                chart.getDatasetMeta(i).hidden = false;
+            } else {
+                dataset.borderColor = 'rgba(200, 200, 200, 0.3)';
+                dataset.borderWidth = 1;
+            }
+        });
+        chart.update();
+    }
+
+    function resetHighlight() {
+        if (lockedDatasetIndex !== null) return; // Don't reset highlight if in lock mode
+        chart.data.datasets.forEach((dataset, index) => {
+            if (index === 0) {
+                // Reset class average line
+                dataset.borderWidth = 3;
+                dataset.borderDash = [];
+                dataset.pointRadius = 4;
+            } else {
+                dataset.borderColor = 'rgba(200, 200, 200, 0.5)';
+                dataset.borderWidth = 1;
+            }
+        });
+        chart.update();
+    }
+
+    function switchTab(tab) {
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+
+        activeDataset = tab === 'vocabulary' ? vocabularyData : sightReadingData;
+        updateChart();
+    }
+
+    function updateChart() {
+        const classAverage = calculateClassAverage(activeDataset);
+        chart.data.datasets[0].data = classAverage;
+
+        for (let i = 1; i < chart.data.datasets.length; i++) {
+            chart.data.datasets[i].data = activeDataset[i - 1].data.map(value => value * 100); // Multiply by 100 here
+        }
+
+        // Ensure custom tooltip settings are maintained
+        chart.options.plugins.tooltip = {
+            enabled: false,
+            external: customTooltip
+        };
+
+        chart.options.onHover = null; // Disable default hover behavior
+        chart.update();
+    }
+
+    // Add this new function for custom tooltip
+    function customTooltip(context) {
+        const defaultTooltip = document.getElementById('default-tooltip');
+        const lockTooltip = document.getElementById('lock-tooltip');
+        const {chart, tooltip: tooltipModel} = context;
+
+        if (tooltipModel.opacity === 0) {
+            defaultTooltip.style.opacity = '0';
+            lockTooltip.style.opacity = '0';
+            return;
+        }
+
+        //move floating label down
+        const dataPoint = tooltipModel.dataPoints[0];
+        const x = tooltipModel.caretX;
+        const y = tooltipModel.caretY + 250;
+
+        if (lockedDatasetIndex === null) {
+            // Default mode: show class average
+            const classAvgValue = chart.data.datasets[0].data[dataPoint.dataIndex].toFixed(1);
+            defaultTooltip.innerHTML = `Class Average: ${classAvgValue}%`;
+            defaultTooltip.style.opacity = '1';
+            defaultTooltip.style.left = `${x}px`;
+            defaultTooltip.style.top = `${y}px`;
+            lockTooltip.style.opacity = '0';
+        } else {
+            // Lock mode: show student's score
+            const label = chart.data.datasets[lockedDatasetIndex].label;
+            const value = chart.data.datasets[lockedDatasetIndex].data[dataPoint.dataIndex].toFixed(1);
+            lockTooltip.innerHTML = `${value}%`;
+            lockTooltip.style.opacity = '1';
+            lockTooltip.style.left = `${x}px`;
+            lockTooltip.style.top = `${y}px`;
+            defaultTooltip.style.opacity = '0';
+        }
+    }
+
+    // Call createChart after the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', createChart);
+</script>
+
+<div id="default-tooltip" class="default-tooltip"></div>
+<div id="lock-tooltip" class="lock-tooltip"></div>
+
+</body>
+</html>
